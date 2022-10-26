@@ -20,8 +20,13 @@
 # include <stdio.h>
 # include <string.h>
 
+// pipex_utils_1
+char    **cx_cmdpath(char *cmd, char **envp);
 char    *findpath(char *prog_name, char **envp);
-void    do_error(void);
+void    p2p_free(char **ptr2d);
+void    do_error_exit(char *msg, char *str);
+
+// void    printtest(char *str, int n, int fd);
+// void    printp2p(char **p2p);
 
 #endif
-

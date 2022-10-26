@@ -95,17 +95,27 @@ int	main(void)
 
 int	main(int ac, char **av, char **envp)
 {
-	char	*cmd[] = {"/la", "-bbbqwertyuio", 0};
+	char	*cmd[] = {"las", "-bb", 0};
 	int		fdin;
 	int		fdout;
 	int		child_stat;
 	int		pid;
 
+	// int	n = 0;
+	// while (n < 130)
+	// {
+	// 	ft_putstr_fd(strerror(n++), 2);
+	// 	ft_putchar_fd('\n', 2);
+	// }
 	pid = fork();
-	printf("%d\n", pid);
 	if (pid == 0)
 	{
-		fdin = open("file", O_RDONLY);
+		fdin = open("filein", O_RDONLY);
+		if (fdin == -1)
+		{
+			ft_putstr_fd(strerror(errno), 2);
+			exit(errno);
+		}
 
 		//fdout = open("fileout", O_RDWR | O_TRUNC, 0777);
 
@@ -121,11 +131,15 @@ int	main(int ac, char **av, char **envp)
 		ft_putstr_fd(strerror(errno), 2);
 		exit(errno);
 	}
-	printf("dp u wait???\n");
 	waitpid(pid, &child_stat, 0);
-	printf("its back with %d\n", child_stat);
-	ft_putstr_fd(strerror(child_stat), 2);
-	exit(errno);
-	printf("stat = %d", child_stat);
-
+	
+	int	err_stat;
+	if (WIFEXITED(child_stat) == 1)
+	{
+		err_stat = WEXITSTATUS(child_stat);
+	}
+	printf("err stat = %d\n", err_stat);
+	printf("errno = %d\n", errno);
+	// ft_putstr_fd(strerror(child_stat), 2);
+	exit(err_stat);
 }

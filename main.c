@@ -12,43 +12,61 @@
 
 #include "pipex.h"
 
-void	child_proc(int *fd, char **av, char **envp)
-{
-	int	cx_exe;
-	int	fdin;
-	char **cmd;
-
-	fdin = open("filein", O_RDONLY, 0777);
-	if (fdin == -1)
-		do_error();
-	dup2(fdin, STDIN_FILENO);
-	dup2(fd[1], STDOUT_FILENO);
-	cx_cmdpath();
-	cx_exe = execve()
-
-}
-
 int	main(int ac, char **av, char **envp)
 {
 	int	fd[2];
 	int	pid;
+	int	child_stat;
+	int	err_stat_cmd1;
 
-	if (ac == 5)
+	int test = open("testout", O_RDWR | O_CREAT | O_TRUNC, 0777);
+	if (ac != 5)
 	{
-		if (pipe(fd) == -1)
-			return (2);
-		pid = fork();
-		if (pid == 0)
-		{
-			child_proc(av, envp);
-		}
-		cx_error();
-		parent_proc(av, envp);
+		perror("expect -> ./pipex filein cmd1 cmd2 fileout");
+		exit(EXIT_FAILURE);
 	}
-	else
+	if (pipe(fd) == -1)
+		do_error_exit(0, 0);
+	pid = fork();
+	// child process CMD1
+	if (pid == 0)
 	{
-		ft_putchar_fd("Expect => ./pipex file1 cmd1 cmd2 file2", STDOUT_FILENO);
-		return (1);
+		int	filein = open(av[1], O_RDONLY);
+		if (filein == -1)
+			do_error_exit(0, av[1]);
+		if (dup2(filein, STDIN_FILENO) == -1)
+			do_error_exit(0, 0);
+		if (dup2(fd[1], STDOUT_FILENO) == -1)
+			do_error_exit(0, 0);
+		char	**cmd = cx_cmdpath(av[2], envp);
+		close(fd[0]);
+		close(fd[1]);
+		close(filein);
+		if (errno == 127)
+			do_error_exit("command not found", cmd[0]);
+		if (execve(cmd[0], cmd, envp) == -1)
+			do_error_exit(0, 0);
 	}
-	return (0);
+	//wait and get errno from child
+	waitpid(pid, &child_stat, 0);
+	if (WIFEXITED(child_stat) == 1)
+		err_stat_cmd1 = WEXITSTATUS(child_stat);
+	errno = err_stat_cmd1;
+	
+	// parent process last cmd
+	int	fileout = open(av[4], O_RDWR | O_CREAT | O_TRUNC, 0777);
+	if (fileout == -1)
+		do_error_exit(0, av[4]);
+	if (dup2(fd[0], STDIN_FILENO) == -1)
+		do_error_exit(0, 0);
+	if (dup2(fileout, STDOUT_FILENO) == -1)
+		do_error_exit(0, 0);
+	char	**cmd = cx_cmdpath(av[3], envp);
+	close(fd[0]);
+	close(fd[1]);
+	close(fileout);
+	if (errno == 127)
+		do_error_exit("command not found", cmd[0]);
+	if (execve(cmd[0], cmd, envp) == -1)
+		do_error_exit(0, cmd[0]);
 }
