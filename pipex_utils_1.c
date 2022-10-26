@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils_1.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pruangde <pruangde@student.42bangkok.com>  +#+  +:+       +#+        */
+/*   By: pruangde <pruangde@student.42bangkok.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/16 03:49:55 by pruangde          #+#    #+#             */
-/*   Updated: 2022/10/16 03:50:27 by pruangde         ###   ########.fr       */
+/*   Updated: 2022/10/27 03:52:26 by pruangde         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char    **cx_cmdpath(char *cmd, char **envp)
 {
-    char    **ret_cmd;
+    char    **ret_cmd = NULL;
 
     ret_cmd = ft_split(cmd, ' ');
     if (!ret_cmd)
@@ -26,23 +26,27 @@ char    **cx_cmdpath(char *cmd, char **envp)
 char    *findpath(char *prog_name, char **envp)
 {
     int     i;
-    char    **split_path;
+    char    **split_path = NULL;
     char    *path_program;
     char    *sl_progname;
 
-    sl_progname = ft_strjoin("/", prog_name);
+    if (prog_name[0] == '/')
+        sl_progname = ft_strjoin("", prog_name);
+    else
+        sl_progname = ft_strjoin("/", prog_name);
     i = 0;
     while (envp[i])
     {
-        if (ft_strnstr(envp[i], "PATH", 4))
+        if (ft_strnstr(envp[i], "PATH=", 5))
             split_path = ft_split(envp[i], ':');
         i++;
     }
+    
     i = 0;
     while (split_path[i])
     {
         if (i == 0)
-            split_path[i] = ft_strtrim(split_path[i], "PATH=");
+            split_path[i] = sp_strtrim(split_path[i], "PATH=");
         path_program = ft_strjoin(split_path[i], sl_progname);
         if (access(path_program, F_OK) == 0)
         {
@@ -51,27 +55,16 @@ char    *findpath(char *prog_name, char **envp)
             free(sl_progname);
             return (path_program);
         }
+        free(path_program);
         i++;
     }
+    p2p_free(split_path);
     free(sl_progname);
-    free(path_program);
     errno = 127;
     return (prog_name);
 }
 
-void    p2p_free(char **ptr2d)
-{
-    int i;
 
-    i = 0;
-    while (ptr2d[i])
-    {
-        free(ptr2d[i]);
-        i++;
-    }
-    free(ptr2d);
-    ptr2d = NULL;
-}
 
 // void    for_dup2_inout(int *fd, int fdin, int fdout)
 // {
@@ -79,42 +72,22 @@ void    p2p_free(char **ptr2d)
 //         do_error_exit
 // }
 
-void    do_error_exit(char *msg, char *str)
-{
-    if (msg && str)
-    {
-        ft_putstr_fd("zsh: ", STDERR_FILENO);
-        ft_putstr_fd(msg, STDERR_FILENO);
-        ft_putstr_fd(": ", STDERR_FILENO);
-        ft_putstr_fd(str, STDERR_FILENO);
-        ft_putchar_fd('\n', STDERR_FILENO);
-    }
-    else if (str)
-    {
-        ft_putstr_fd("zsh: ", STDERR_FILENO);
-        ft_putstr_fd(strerror(errno), STDERR_FILENO);
-        ft_putstr_fd(": ", STDERR_FILENO);
-        ft_putstr_fd(str, STDERR_FILENO);
-        ft_putchar_fd('\n', STDERR_FILENO);
-    }
-    else
-    {
-        ft_putstr_fd("zsh: ", STDERR_FILENO);
-        ft_putstr_fd(strerror(errno), STDERR_FILENO);
-        ft_putchar_fd('\n', STDERR_FILENO);
-    }
-    // if ok move this comment out
-    exit(errno);
-}
+
+
+
+
+
+
+
 
 // just for test
-// void    printtest(char *str, int n, int fd)
-// {
-//     ft_putstr_fd(str, fd);
-//     ft_putstr_fd(" = ", fd);
-//     ft_putnbr_fd(n, fd);
-//     ft_putchar_fd('\n', fd);
-// }
+void    printtest(char *str, int n, int fd)
+{
+    ft_putstr_fd(str, fd);
+    ft_putstr_fd(" = ", fd);
+    ft_putnbr_fd(n, fd);
+    ft_putchar_fd('\n', fd);
+}
 
 // void printp2p(char **p2p)
 // {

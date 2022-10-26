@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pruangde <pruangde@student.42bangkok.com>  +#+  +:+       +#+         #
+#    By: pruangde <pruangde@student.42bangkok.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/17 12:37:19 by pruangde          #+#    #+#              #
-#    Updated: 2022/10/18 01:46:24 by pruangde         ###   ########.fr        #
+#    Updated: 2022/10/27 03:47:53 by pruangde         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,35 +18,28 @@ else
 	CC = gcc
 endif
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 RM = rm -rf
 NAME = pipex
 
 LIBFT_PATH = libft
 LIBFT = $(LIBFT_PATH)/libft.a
 
-BN_SRC =
-
-SRCS =
-OBJS = $(SRCS:.c=.o)
-
-BN_OBJS = $(BN_SRC:.c=.o)
+SRCS = main.c pipex_utils_1.c pipex_utils_2.c
+#OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean fclean re bonus
 
 all: $(NAME)
 
 $(NAME): $(LIBFT) #$(OBJS)
-	$(CC) $(CFLAGS) $(LIBFT) $(OBJS) -o $(NAME)
+	$(CC) $(CFLAGS) $(LIBFT) $(SRCS) -o $(NAME)
 
 $(LIBFT):
 	make -C $(LIBFT_PATH) all
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-
-bonus:  $(OBJS) $(BN_OBJS)
-	@ar -rcs $(NAME) $(OBJS) $(BN_OBJS)
 
 clean:
 	@make -C $(LIBFT_PATH) clean
