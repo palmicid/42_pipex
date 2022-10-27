@@ -6,7 +6,7 @@
 #    By: pruangde <pruangde@student.42bangkok.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/17 12:37:19 by pruangde          #+#    #+#              #
-#    Updated: 2022/10/27 03:47:53 by pruangde         ###   ########.fr        #
+#    Updated: 2022/10/27 10:48:01 by pruangde         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ else
 	CC = gcc
 endif
 
-CFLAGS = -Wall -Wextra -Werror -g
+CFLAGS = -Wall -Wextra -Werror
 RM = rm -rf
 NAME = pipex
 
@@ -26,13 +26,12 @@ LIBFT_PATH = libft
 LIBFT = $(LIBFT_PATH)/libft.a
 
 SRCS = main.c pipex_utils_1.c pipex_utils_2.c
-#OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean fclean re bonus
 
 all: $(NAME)
 
-$(NAME): $(LIBFT) #$(OBJS)
+$(NAME): $(LIBFT)
 	$(CC) $(CFLAGS) $(LIBFT) $(SRCS) -o $(NAME)
 
 $(LIBFT):
@@ -51,21 +50,11 @@ fclean: clean
 
 re: fclean all
 
-test:
-	$(CC) maintest.c $(NAME)
-	#valgrind --vgdb=no --leak-check=full --show-leak-kinds=all ./a.out
-
-leak:
-	leaks --atExit -- ./a.out
-
-san:
-	$(CC) -fsanitize=address -fno-omit-frame-pointer maintest.c
-
 norm:
 	@echo "------------------------------------"
 	@echo " !!!!!!!!   NORMINETTE   !!!!!!!!"
 	@echo ""
-	@norminette -R CheckForbiddenSourceHeader ft_*.c
+	@norminette -R CheckForbiddenSourceHeader $(SRCS)
 	@norminette -R CheckDefine *.h
 	@echo ""
 	@echo "------------------------------------"

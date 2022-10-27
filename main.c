@@ -6,7 +6,7 @@
 /*   By: pruangde <pruangde@student.42bangkok.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/08 00:05:12 by pruangde          #+#    #+#             */
-/*   Updated: 2022/10/27 04:06:02 by pruangde         ###   ########.fr       */
+/*   Updated: 2022/10/27 11:00:31 by pruangde         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 void	child_proc_cmd1(char **av, char **envp, int *fd)
 {
-	int	filein;
+	int		filein;
 	char	**cmd;
-	
-	filein = open(av[1], O_RDONLY, 0777);
+
+	filein = open(av[1], O_RDONLY);
 	if (filein == -1)
 		do_error_exit(0, av[1]);
 	dup2(filein, STDIN_FILENO);
@@ -40,9 +40,9 @@ void	child_proc_cmd1(char **av, char **envp, int *fd)
 
 void	parent_proc_cmd2(char **av, char **envp, int *fd)
 {
-	int	fileout;
-	char **cmd;
-	
+	int		fileout;
+	char	**cmd;
+
 	fileout = open(av[4], O_RDWR | O_CREAT | O_TRUNC, 0777);
 	if (fileout == -1)
 		do_error_exit(0, av[4]);
@@ -69,7 +69,7 @@ int	main(int ac, char **av, char **envp)
 	int	fd[2];
 	int	pid;
 	int	child_stat;
-	int	err_stat = 0;
+	int	err_stat;
 
 	if (ac != 5)
 	{
@@ -79,17 +79,12 @@ int	main(int ac, char **av, char **envp)
 	if (pipe(fd) == -1)
 		do_error_exit(0, 0);
 	pid = fork();
-	// child process CMD1
 	if (pid == 0)
 		child_proc_cmd1(av, envp, fd);
-
-	//wait and get errno from child
-	waitpid(pid, &child_stat, 0);
+	err_stat = 0;
+	waitpid(pid, &child_stat, WNOHANG);
 	if (WIFEXITED(child_stat))
 		err_stat = WEXITSTATUS(child_stat);
 	errno = err_stat;
-	
-	// parent process last cmd
 	parent_proc_cmd2(av, envp, fd);
-
 }
